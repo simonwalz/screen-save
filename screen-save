@@ -1,0 +1,225 @@
+#!/bin/bash
+# save screen sessions
+# Simon Walz, 2018
+
+# configuration:
+# processes with shall be stated automatically:
+ALLOWED_PROCESSES="^vim |^top|^htop|^watch |^ping "
+
+# default dir where to save the screen sessions:
+DEFAULT_SAVE_DIR="${HOME}/.screenrc-"
+
+debug() {
+	# remove "#" to enable debug output:
+	#echo "$@" >&2
+}
+
+
+# script:
+C=""
+write() {
+	if test "x$1" = "x-n"; then
+		shift;
+		C="${C}$@"
+		return
+	fi
+	C="${C}$@
+"
+}
+
+# check parameters:
+SCREEN_NAME="$1"
+SAVE_FILE="$2"
+
+if test "x${SCREEN_NAME}" = "x" || test "x${SCREEN_NAME}" = "x--help";
+then
+	echo "usage: prog [-t] screenname [savefile]" >&2
+	echo "	[-t]		- use this screen session (optional)" >&2
+	echo "	screenname	- use session with name" >&2
+	echo "	savefile	- save to file" >&2
+	echo "			  default: ~/.screenrc-SESSIONNAME" >&2
+	exit 2
+fi
+if test "x${SCREEN_NAME}" = "x-t";
+then
+	if test "x${STY}" = "x";
+	then
+		echo "No screen name given by STY var" >&2
+		echo "" >&2
+		echo "Not inside of a screen session?" >&2
+		exit 1
+	fi
+	# session name in sty is not updated.
+	SCREEN_PID="$(echo ${STY} | grep -oE "^\s*[0-9]+" | grep -oE "[0-9]+")"
+	SCREEN_NAME=""
+	C_SCREEN_NAME="$2"
+	SAVE_FILE="$3"
+else
+	# parse screen list:
+	SCREEN_PID=`screen -S "${SCREEN_NAME}" -ls | \
+		grep -E "\.${SCREEN_NAME}\s" | grep -oE "^\s+[0-9]+\." | \
+		grep -oE "[0-9]+"`
+fi
+
+if test "x${SCREEN_PID}" = "x"
+then
+	echo "Process not found." >&2
+	exit 1
+fi
+
+SCREEN_ID="${SCREEN_PID}.${SCREEN_NAME}"
+
+# set user sessionname:
+if test "x${C_SCREEN_NAME}" != "x"; then
+	SCREEN_NAME="${C_SCREEN_NAME}"
+fi
+# get sessionname from screen:
+if test "x${SCREEN_NAME}" = "x"; then
+	SCREEN_NAME="$(screen -S 30576 -Q echo '${STY}')"
+	# if pts or tty: there is no sessionname:
+	echo "${SCREEN_NAME}" | grep -E "^pts" >/dev/null
+	if test "x$?" = "x0"; then
+		SCREEN_NAME=""
+	fi
+	echo "${SCREEN_NAME}" | grep -E "^tty" >/dev/null
+	if test "x$?" = "x0"; then
+		SCREEN_NAME=""
+	fi
+fi
+if test "x${SCREEN_NAME}" = "x"; then
+	echo -n "Get new session name: "
+	read SCREEN_NAME
+fi
+if test "x${SCREEN_NAME}" = "x"; then
+	SCREEN_NAME="__new"
+fi
+
+# get screens cwd:
+SCREEN_CWD="$(screen -S "${SCREEN_ID}" -Q echo '${PWD}')"
+
+write "source \"${HOME}/.screenrc\""
+write "sessionname \"${SCREEN_NAME}\""
+
+debug SCREENNAME=${SCREEN_NAME}
+debug SCREEN_ID=${SCREEN_ID}
+debug "path: ${SCREEN_CWD}"
+debug
+
+# create directory for window contents:
+mkdir -p "${HOME}/.screen_hardcopy"
+
+# for all windows:
+for WINDOW_PID in `ps -o pid= --ppid "${SCREEN_PID}"`
+do
+	# get window id:
+	# LIMITATION: Changing the number of a window is not supported.
+	# The window number is read from the environment, which can not
+	# be updated by screen.
+	WINDOW_ID="$(xargs --null --max-args=1 echo \
+		</proc/${WINDOW_PID}/environ | grep WINDOW | grep -oE "[0-9]+")"
+
+	# read cmdline:
+	WINDOW_CL="$(xargs -0 printf "%q " </proc/${WINDOW_PID}/cmdline | \
+		sed -e 's/ \+$//g')"
+
+	# get cwd of window:
+	WINDOW_CWD="$(readlink /proc/${WINDOW_PID}/cwd)"
+	
+	# get title of window:
+	WINDOW_TITLE="$(screen -S "${SCREEN_ID}" -p "${WINDOW_ID}" -Q title)"
+
+	# ask screen for window contents:
+	screen -S "${SCREEN_ID}" -p "${WINDOW_ID}" -X hardcopy "${HOME}/.screen_hardcopy/${SCREEN_NAME}_${WINDOW_ID}"
+	# screen -h = full history
+
+	# wait till file is writen:
+	sleep 0.01
+	if test \! -f "${HOME}/.screen_hardcopy/${SCREEN_NAME}_${WINDOW_ID}"
+	then
+		echo "Fehler: hardcopy not found." >&2
+		exit 2
+	fi
+
+	# get window contents, alter it, zip it, encode it with base64:
+	WINDOW_CONTENTS="$(awk '/^$/{next}NR>1 {print last} {last=$0}' \
+		"${HOME}/.screen_hardcopy/${SCREEN_NAME}_${WINDOW_ID}" | \
+		gzip -c | base64 | sed ':a;N;$!ba;s/\n/\\n/g')"
+	rm "${HOME}/.screen_hardcopy/${SCREEN_NAME}_${WINDOW_ID}"
+
+	debug "[${WINDOW_ID}] ${WINDOW_TITLE} - ${WINDOW_CL}"
+	debug "${WINDOW_CWD}"
+
+	PROCESS_CL=""
+	for PROCESS_PID in `ps -o pid= --ppid "${WINDOW_PID}"`
+	do
+		debug "PID=${PROCESS_PID}"
+
+		# get command file:
+		PROCESS_CL="$(xargs -0 printf "%q " \
+			</proc/${PROCESS_PID}/cmdline | sed -e 's/ \+$//g')"
+
+		# get cwd of process:
+		#PROCESS_CWD="`readlink /proc/${PROCESS_PID}/cwd`"
+
+		debug "\> ${PROCESS_CL}"
+
+		# if process is a allow process, do exec command:
+		echo "${PROCESS_CL}" | grep -E "${ALLOWED_PROCESSES}" \
+				>/dev/null 2>&1
+		if test "x$?" = "x0"
+		then
+			PROCESS_CL="${PROCESS_CL}\\n"
+		fi
+	done
+
+	# create window:
+	write "chdir \"${WINDOW_CWD}\""
+	write "screen -t \"${WINDOW_TITLE}\" ${WINDOW_ID} \"${WINDOW_CL}\""
+
+	# add window contents and command:
+	if test "x${PROCESS_CL}" != "x" || test "x${WINDOW_CONTENTS}" != "x"
+	then
+		write -n "at \"${WINDOW_ID}#\" exec !.! sh -c \"sleep 0.2;"
+		write -n "echo \\\"${WINDOW_CONTENTS}\\\"|base64 -d|gzip -cd"
+		if test "x${PROCESS_CL}" != "x"
+		then
+			write -n "${C};echo -n \\\"${PROCESS_CL}\\\" >&2"
+			#C="${C};echo -n $(printf "%q" "${PROCESS_CL}") >&2"
+		fi
+		write "\""
+	fi
+	# alternative code
+	# screen -S dokuweb -p 0 -X stuff "ls\n"
+#	if test "x${PROCESS_CL}" != "x"; then
+#		write "at \"${WINDOW_ID}#\" stuff \"${PROCESS_CL}\""
+#	fi
+
+	# add newlines
+	write
+	debug
+
+done
+
+write
+write "# bug in screen: changing cwd of screen breaks term cap:"
+write "chdir \"${SCREEN_CWD}\""
+write "chdir"
+write
+write "#windowlist"
+write
+write "# vim: ft=screen"
+
+# clean status line:
+screen -S "${SCREEN_ID}" -Q echo ''
+
+
+# save session file:
+if test "x${SAVE_FILE}" = "x"; then
+	SAVE_FILE="${DEFAULT_SAVE_DIR}${SCREEN_NAME}"
+fi
+if test "x${SAVE_FILE}" = "x-"; then
+	echo "${C}"
+else
+	echo "${C}" >"${SAVE_FILE}"
+fi
+
