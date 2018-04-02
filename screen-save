@@ -1,5 +1,5 @@
 #!/bin/bash
-# save screen sessions
+# save screen sessions to screenrc compatible files
 # Simon Walz, 2018
 
 # configuration:
@@ -12,6 +12,7 @@ DEFAULT_SAVE_DIR="${HOME}/.screenrc-"
 debug() {
 	# remove "#" to enable debug output:
 	#echo "$@" >&2
+	return
 }
 
 
@@ -28,10 +29,10 @@ write() {
 }
 
 # check parameters:
-SCREEN_NAME="$1"
+SCREEN_SEARCH="$1"
 SAVE_FILE="$2"
 
-if test "x${SCREEN_NAME}" = "x" || test "x${SCREEN_NAME}" = "x--help";
+if test "x${SCREEN_SEARCH}" = "x" || test "x${SCREEN_SEARCH}" = "x--help";
 then
 	echo "usage: prog [-t] screenname [savefile]" >&2
 	echo "	[-t]		- use this screen session (optional)" >&2
@@ -40,7 +41,7 @@ then
 	echo "			  default: ~/.screenrc-SESSIONNAME" >&2
 	exit 2
 fi
-if test "x${SCREEN_NAME}" = "x-t";
+if test "x${SCREEN_SEARCH}" = "x-t";
 then
 	if test "x${STY}" = "x";
 	then
@@ -51,13 +52,14 @@ then
 	fi
 	# session name in sty is not updated.
 	SCREEN_PID="$(echo ${STY} | grep -oE "^\s*[0-9]+" | grep -oE "[0-9]+")"
-	SCREEN_NAME=""
 	C_SCREEN_NAME="$2"
 	SAVE_FILE="$3"
 else
+	# search for sessionname, pid or full id
 	# parse screen list:
-	SCREEN_PID=`screen -S "${SCREEN_NAME}" -ls | \
-		grep -E "\.${SCREEN_NAME}\s" | grep -oE "^\s+[0-9]+\." | \
+	SCREEN_PID=`screen -S "${SCREEN_SEARCH}" -ls | \
+		grep -E "\.${SCREEN_SEARCH}\s|^\s+${SCREEN_SEARCH}(\.|\s)" | \
+		grep -oE "^\s+[0-9]+\." | \
 		grep -oE "[0-9]+"`
 fi
 
@@ -67,28 +69,30 @@ then
 	exit 1
 fi
 
+# get sessionname from screen:
+SCREEN_NAME="$(screen -S ${SCREEN_PID} -Q echo '${STY}')"
+
+# screen id is pid + name:
 SCREEN_ID="${SCREEN_PID}.${SCREEN_NAME}"
+
+# if pts or tty: there is no sessionname:
+echo "${SCREEN_NAME}" | grep -E "^pts" >/dev/null
+if test "x$?" = "x0"; then
+	SCREEN_NAME=""
+fi
+echo "${SCREEN_NAME}" | grep -E "^tty" >/dev/null
+if test "x$?" = "x0"; then
+	SCREEN_NAME=""
+fi
 
 # set user sessionname:
 if test "x${C_SCREEN_NAME}" != "x"; then
 	SCREEN_NAME="${C_SCREEN_NAME}"
 fi
-# get sessionname from screen:
-if test "x${SCREEN_NAME}" = "x"; then
-	SCREEN_NAME="$(screen -S 30576 -Q echo '${STY}')"
-	# if pts or tty: there is no sessionname:
-	echo "${SCREEN_NAME}" | grep -E "^pts" >/dev/null
-	if test "x$?" = "x0"; then
-		SCREEN_NAME=""
-	fi
-	echo "${SCREEN_NAME}" | grep -E "^tty" >/dev/null
-	if test "x$?" = "x0"; then
-		SCREEN_NAME=""
-	fi
-fi
 if test "x${SCREEN_NAME}" = "x"; then
 	echo -n "Get new session name: "
 	read SCREEN_NAME
+	echo
 fi
 if test "x${SCREEN_NAME}" = "x"; then
 	SCREEN_NAME="__new"
@@ -98,12 +102,15 @@ fi
 SCREEN_CWD="$(screen -S "${SCREEN_ID}" -Q echo '${PWD}')"
 
 write "source \"${HOME}/.screenrc\""
+write
 write "sessionname \"${SCREEN_NAME}\""
+write
 
 debug SCREENNAME=${SCREEN_NAME}
 debug SCREEN_ID=${SCREEN_ID}
 debug "path: ${SCREEN_CWD}"
 debug
+
 
 # create directory for window contents:
 mkdir -p "${HOME}/.screen_hardcopy"
@@ -183,7 +190,7 @@ do
 		write -n "echo \\\"${WINDOW_CONTENTS}\\\"|base64 -d|gzip -cd"
 		if test "x${PROCESS_CL}" != "x"
 		then
-			write -n "${C};echo -n \\\"${PROCESS_CL}\\\" >&2"
+			write -n ";echo -n \\\"${PROCESS_CL}\\\" >&2"
 			#C="${C};echo -n $(printf "%q" "${PROCESS_CL}") >&2"
 		fi
 		write "\""
