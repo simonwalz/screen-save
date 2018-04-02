@@ -4,7 +4,7 @@ A tool to make screen sessions persistent = survive system reboot.
 
 ## Save a screen session
 
-The following command saves a screen session to the file `~/.screenrc_{SESSIONAME}`:
+The following command saves a screen session to the file `~/.screenrc_{SESSIONAME}`. The created file is compatible with the screenrc definition.
 
 ```sh
 screen-save [-t] SESSIONNAME [SAVE_FILE]
@@ -34,7 +34,8 @@ screen-save [-t] SESSIONNAME [SAVE_FILE]
   </tbody>
 </table>
 
-Start a screen session with <code>screen -S SESSIONNAME</code> or rename an existing session via <code>CTRL + A</code>, <code>:session SESSIONAME</code> 
+##### Using session names
+Start a screen session with <code>screen -S SESSIONNAME</code> or rename an existing session by <code>CTRL + A</code>, <code>:</code> and <code>session SESSIONAME</code>
 
 ##### Example
 
@@ -47,6 +48,8 @@ screen -S mysession
 screen -x
 # save session
 screen-save mysession
+# load that session again
+screen -c ~/.screenrc-mysession
 ```
 
 ## Load a screen session
@@ -114,6 +117,19 @@ Just remove the saved screenrc file:
 ```sh
 rm ~/.screenrc-{SESSIONNAME}
 ```
+
+## Installation
+
+Alternatives:
+
+* Use my tool [link-script-paths](https://github.com/simonwalz/script-link-script-paths).
+
+Or do it manually:<br>
+
+* Close this repository and add it to the path environment.
+
+* Copy all scripts to a directory already added it the path environment. E.g. `/usr/local/bin`
+
 
 ## Limitations
 
