@@ -10,7 +10,8 @@
 # default dir where to save the screen sessions:
 DEFAULT_SAVE_DIR="${HOME}/.screenrc-"
 
-for file in "${DEFAULT_SAVE_DIR}*"
+
+for file in "${DEFAULT_SAVE_DIR}"*
 do
 	/usr/bin/env screen -d -m -c "$file"
 done
