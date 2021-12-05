@@ -28,9 +28,63 @@ write() {
 "
 }
 
+doublequote() {
+	local output
+	for i in "$@"
+	do
+		i=${i//\\/\\\\}
+		i='"'${i//\"/\\\"}'"'
+		echo -n "$i"
+	done
+	echo
+}
+
+singlequote() {
+	for i in "$@"
+	do
+		i=\'${i//\'/\'\\\'\'}\'
+		echo -n "$i"
+	done
+	echo
+}
+
+escape_screen_config() {
+	doublequote "$@"
+}
+
+escape_shell() {
+	for i in "$@"
+	do
+		echo -n "${i@Q}"
+	done
+	echo
+}
+
+read_cmdline() {
+	local window_pid
+	window_pid="$1"
+	local format
+	format="%s"
+	( while IFS= read -r -d $'\0' ARG
+	do
+		if test "x$(echo "${ARG}" | tr -d 'A-Za-z0-9.=_-')" = "x"
+		then
+			printf "${format}" "${ARG}"
+		else
+			printf "${format}" "$(escape_shell "${ARG}")"
+		fi
+		format=" %s"
+	done ) <"/proc/${window_pid}/cmdline"
+}
+
 # check parameters:
 SCREEN_SEARCH="$1"
 SAVE_FILE="$2"
+
+if test "x${TESTCASES}" = "xscreen-save"
+then
+	return
+fi
 
 if test "x${SCREEN_SEARCH}" = "x" || test "x${SCREEN_SEARCH}" = "x--help";
 then
@@ -126,8 +180,8 @@ do
 		</proc/${WINDOW_PID}/environ | grep WINDOW | grep -oE "[0-9]+")"
 
 	# read cmdline:
-	WINDOW_CL="$(xargs -0 printf "%q " </proc/${WINDOW_PID}/cmdline | \
-		sed -e 's/ \+$//g')"
+	WINDOW_CL="$(read_cmdline "${WINDOW_PID}")"
+
 
 	# get cwd of window:
 	WINDOW_CWD="$(readlink /proc/${WINDOW_PID}/cwd)"
@@ -162,8 +216,7 @@ do
 		debug "PID=${PROCESS_PID}"
 
 		# get command file:
-		PROCESS_CL="$(xargs -0 printf "%q " \
-			</proc/${PROCESS_PID}/cmdline | sed -e 's/ \+$//g')"
+		PROCESS_CL="$(read_cmdline "${PROCESS_PID}")"
 
 		# get cwd of process:
 		#PROCESS_CWD="`readlink /proc/${PROCESS_PID}/cwd`"
@@ -181,19 +234,18 @@ do
 
 	# create window:
 	write "chdir \"${WINDOW_CWD}\""
-	write "screen -t \"${WINDOW_TITLE}\" ${WINDOW_ID} \"${WINDOW_CL}\""
+	write "screen -t \"${WINDOW_TITLE}\" ${WINDOW_ID} ${WINDOW_CL}"
 
 	# add window contents and command:
 	if test "x${PROCESS_CL}" != "x" || test "x${WINDOW_CONTENTS}" != "x"
 	then
-		write -n "at \"${WINDOW_ID}#\" exec !.! sh -c \"sleep 0.2;"
-		write -n "echo \\\"${WINDOW_CONTENTS}\\\"|base64 -d|gzip -cd"
+		EXEC_CL="sleep 0.2;echo '${WINDOW_CONTENTS}'|base64 -d|gzip -cd"
 		if test "x${PROCESS_CL}" != "x"
 		then
-			write -n ";echo -n \\\"${PROCESS_CL}\\\" >&2"
-			#C="${C};echo -n $(printf "%q" "${PROCESS_CL}") >&2"
+			EXEC_CL="${EXEC_CL};echo -n $(escape_shell "${PROCESS_CL}") >&2"
 		fi
-		write "\""
+		write -n "at \"${WINDOW_ID}#\" exec !.! sh -c "
+		write "$(escape_screen_config "${EXEC_CL}")"
 	fi
 	# alternative code
 	# screen -S dokuweb -p 0 -X stuff "ls\n"
