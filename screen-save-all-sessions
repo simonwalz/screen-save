@@ -2,24 +2,30 @@
 # save all my screen sessions
 # Simon Walz, 2018
 
-set -eu
+SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
+SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
 
-ARGC=$#
+set -e
 
-defaultdir="$HOME/.screen-save/$(date --iso-8601)"
-savedir=$defaultdir
-if [[ "$ARGC" -gt 0 ]]; then
-  savedir=$1
-fi
+savedir="$1"
 
-if [[ "$savedir" =~ \-h ]]; then
-	echo "usage: prog [savedir]" >&2
+if test "x$1" = "x--help" || test "x$1" = "x-h"
+then
+	echo "usage: prog [-d|savedir]" >&2
+	echo "  -d      - use .screen-save/YYYY-MM-DD/ aus save dir" >&2
 	echo "	savedir	- save to directory" >&2
-	echo "			  default: $defaultdir" >&2
 	exit 2
 fi
+if test "x$savedir" = "x-d"
+then
+	savedir="$HOME/.screen-save/$(date +%Y-%m-%d)/"
+fi
 
-mkdir -pv $savedir
+if test "x$savedir" != "x"
+then
+	savedir="${savedir}/"
+	mkdir -p "${savedir}"
+fi
 
 SCREEN_PID=`screen -ls | \
 	grep -oE "^\s+[0-9]+\." | \
@@ -27,6 +33,6 @@ SCREEN_PID=`screen -ls | \
 
 for i in ${SCREEN_PID}
 do
-  $(dirname $0)/screen-save "${i}" "$savedir/$i" </dev/null
+	"${SCRIPTDIR}/screen-save" "$i" "$savedir" </dev/null
 done
 

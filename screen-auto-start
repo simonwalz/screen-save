@@ -9,9 +9,26 @@
 
 # default dir where to save the screen sessions:
 DEFAULT_SAVE_DIR="${HOME}/.screenrc-"
+SAVE_DIR="${DEFAULT_SAVE_DIR}"
+
+if test "x$1" = "x--help" || test "x$1" = "x-h"
+then
+	echo "usage: prog [savedir]" >&2
+	echo "	savedir	- load configs from directory" >&2
+	exit 2
+fi
+
+if test "x$1" != "x"
+then
+	SAVE_DIR="$1"
+fi
+if test -d "${SAVE_DIR}"
+then
+	SAVE_DIR="${SAVE_DIR}/"
+fi
 
 
-for file in "${DEFAULT_SAVE_DIR}"*
+for file in "${SAVE_DIR}"*
 do
-	/usr/bin/env screen -d -m -c "$file"
+	echo /usr/bin/env screen -d -m -c "$file"
 done
