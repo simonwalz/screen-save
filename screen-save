@@ -53,11 +53,12 @@ escape_screen_config() {
 }
 
 escape_shell() {
-	for i in "$@"
-	do
-		echo -n "${i@Q}"
-	done
-	echo
+	singlequote "$@"
+	#for i in "$@"
+	#do
+	#	echo -n "${i@Q}"
+	#done
+	#echo
 }
 
 read_cmdline() {
