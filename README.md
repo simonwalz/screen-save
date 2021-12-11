@@ -97,19 +97,21 @@ The script `screen-auto-start` is part of this repository.
 
 ## Automatically save all my session
 
+> I save my sessions manually, but here is a script to save your sessions periodically:
+
 To start the saved screen sessions at system start, start crontab via:
 
 ```sh
 crontab -e
 ```
 
-and add the script `creen-save-all-sessions` to save all my sessions every day at 3:00am:
+and add the script `screen-save-all-sessions` to save all my sessions every day at 3:00am:
 
 ```cron
 0 3 * * * /full/path/to/screen-save-all-sessions
 ```
 
-The script `creen-save-all-sessions` is part of this repository.
+The script `screen-save-all-sessions` is part of this repository.
 
 ## Remove a saved session
 Just remove the saved screenrc file:
@@ -124,11 +126,11 @@ Alternatives:
 
 * Use my tool [link-script-paths](https://github.com/simonwalz/script-link-script-paths).
 
-Or do it manually:<br>
+Or do it manually:
 
 * Close this repository and add it to the path environment.
 
-* Copy all scripts to a directory already added it the path environment. E.g. `/usr/local/bin`
+* Copy all scripts to a directory already added to the path environment. E.g. `/usr/local/bin`
 
 
 ## Limitations
