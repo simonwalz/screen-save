@@ -2,12 +2,37 @@
 # save all my screen sessions
 # Simon Walz, 2018
 
+SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
+SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
+
+set -e
+
+savedir="$1"
+
+if test "x$1" = "x--help" || test "x$1" = "x-h"
+then
+	echo "usage: prog [-d|savedir]" >&2
+	echo "  -d      - use .screen-save/YYYY-MM-DD/ aus save dir" >&2
+	echo "	savedir	- save to directory" >&2
+	exit 2
+fi
+if test "x$savedir" = "x-d"
+then
+	savedir="$HOME/.screen-save/$(date +%Y-%m-%d)/"
+fi
+
+if test "x$savedir" != "x"
+then
+	savedir="${savedir}/"
+	mkdir -p "${savedir}"
+fi
+
 SCREEN_PID=`screen -ls | \
 	grep -oE "^\s+[0-9]+\." | \
 	grep -oE "[0-9]+"`
 
 for i in ${SCREEN_PID}
 do
-	screen-save "${i}" </dev/null
+	"${SCRIPTDIR}/screen-save" "$i" "$savedir" </dev/null
 done
 

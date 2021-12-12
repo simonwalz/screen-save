@@ -90,12 +90,10 @@ if test "x${C_SCREEN_NAME}" != "x"; then
 	SCREEN_NAME="${C_SCREEN_NAME}"
 fi
 if test "x${SCREEN_NAME}" = "x"; then
-	echo -n "Get new session name: "
-	read SCREEN_NAME
-	echo
+	read -p "The screen session does not have a name. Please set one: " SCREEN_NAME
 fi
 if test "x${SCREEN_NAME}" = "x"; then
-	SCREEN_NAME="__new"
+	SCREEN_NAME="pid-${SCREEN_SEARCH}"
 fi
 
 # get screens cwd:
@@ -223,6 +221,9 @@ screen -S "${SCREEN_ID}" -Q echo ''
 # save session file:
 if test "x${SAVE_FILE}" = "x"; then
 	SAVE_FILE="${DEFAULT_SAVE_DIR}${SCREEN_NAME}"
+fi
+if test -d "${SAVE_FILE}"; then
+	SAVE_FILE="${SAVE_FILE}/${SCREEN_NAME}"
 fi
 if test "x${SAVE_FILE}" = "x-"; then
 	echo "${C}"
