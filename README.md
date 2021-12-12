@@ -136,6 +136,6 @@ Or do it manually:
 ## Limitations
 
 * Screen Version 4.01 is needed, to support queried commands.
-* Does not work on macOS, because there is no /proc filesystem.
+* Does not work on macOS, because there is no /proc filesystem. (Maybe with procfs on [MacFUSE](https://osxfuse.github.io/))
 * Changing the number of a window is not supported. The window number is read from the environment, which can not be updated by screen.
 * Saving window layouts is not jet implemented.
