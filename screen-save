@@ -176,7 +176,7 @@ do
 	# The window number is read from the environment, which can not
 	# be updated by screen.
 	WINDOW_ID="$(xargs --null --max-args=1 echo \
-		</proc/${WINDOW_PID}/environ | grep WINDOW | grep -oE "[0-9]+")"
+		</proc/${WINDOW_PID}/environ | grep -w WINDOW | grep -oE "[0-9]+")"
 
 	# read cmdline:
 	WINDOW_CL="$(read_cmdline "${WINDOW_PID}")"
