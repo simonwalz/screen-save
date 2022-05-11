@@ -206,7 +206,7 @@ do
 	# get window contents, alter it, zip it, encode it with base64:
 	WINDOW_CONTENTS="$(awk '/^$/{next}NR>1 {print last} {last=$0}' \
 		"${HOME}/.screen_hardcopy/${SCREEN_NAME}_${WINDOW_ID}" | \
-		gzip -c -9 | base64 | sed ':a;N;$!ba;s/\n/\\n/g')"
+		gzip -c -9 | base64 -w 0 | sed ':a;N;$!ba;s/\n/\\n/g')"
 	rm "${HOME}/.screen_hardcopy/${SCREEN_NAME}_${WINDOW_ID}"
 
 	debug "[${WINDOW_ID}] ${WINDOW_TITLE} - ${WINDOW_CL}"
