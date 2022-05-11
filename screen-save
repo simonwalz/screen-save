@@ -156,8 +156,11 @@ fi
 # get screens cwd:
 SCREEN_CWD="$(screen -S "${SCREEN_ID}" -Q echo '${PWD}')"
 
-write "source \"${HOME}/.screenrc\""
+write "# from .screenrc (filtered):"
+write "$(grep -Ei "^(def|source|colon|setenv|unsetenv|shell|shelltitle|term|password|lockscreen|multiuser|acladd|addacl|aclchg|chacl|acldel|aclgrp|aclumask|umask|wall|resize|caption|fit|mousetrack|width|height|utf8|scrollback|bind|unbindall|escape|meta|dump|echo|sleep|log|startup_message|debug|crlf|caption)" "${HOME}/.screenrc")"
+#write "source \"${HOME}/.screenrc\""
 write
+write "# saved session:"
 write "sessionname \"${SCREEN_NAME}\""
 write
 
@@ -205,7 +208,7 @@ do
 	# get window contents, alter it, zip it, encode it with base64:
 	WINDOW_CONTENTS="$(awk '/^$/{next}NR>1 {print last} {last=$0}' \
 		"${HOME}/.screen_hardcopy/${SCREEN_NAME}_${WINDOW_ID}" | \
-		gzip -c | base64 | sed ':a;N;$!ba;s/\n/\\n/g')"
+		gzip -c -9 | base64 | sed ':a;N;$!ba;s/\n/\\n/g')"
 	rm "${HOME}/.screen_hardcopy/${SCREEN_NAME}_${WINDOW_ID}"
 
 	debug "[${WINDOW_ID}] ${WINDOW_TITLE} - ${WINDOW_CL}"
@@ -265,7 +268,8 @@ write "# bug in screen: changing cwd of screen breaks term cap:"
 write "chdir \"${SCREEN_CWD}\""
 write "chdir"
 write
-write "#windowlist"
+write "# bug in screen: last write command not executed"
+write "screen '/bin/false'"
 write
 write "# vim: ft=screen"
 
