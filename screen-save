@@ -157,7 +157,7 @@ fi
 SCREEN_CWD="$(screen -S "${SCREEN_ID}" -Q echo '${PWD}')"
 
 write "# from .screenrc (filtered):"
-write "$(grep -Ei "^(def|source|colon|setenv|unsetenv|shell|shelltitle|term|password|lockscreen|multiuser|acladd|addacl|aclchg|chacl|acldel|aclgrp|aclumask|umask|wall|resize|caption|fit|mousetrack|width|height|utf8|scrollback|bind|unbindall|escape|meta|dump|echo|sleep|log|startup_message|debug|crlf|caption)" "${HOME}/.screenrc")"
+write "$(grep -Ei "^(def|source|colon|setenv|unsetenv|shell|shelltitle|term|password|lockscreen|multiuser|acladd|addacl|aclchg|chacl|acldel|aclgrp|aclumask|umask|wall|resize|caption|fit|mousetrack|width|height|utf8|scrollback|bind|unbindall|escape|meta|dump|echo|sleep|log|startup_message|debug|crlf|caption)" "${HOME}/.screenrc" 2>/dev/null)"
 #write "source \"${HOME}/.screenrc\""
 write
 write "# saved session:"
