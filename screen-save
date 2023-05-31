@@ -7,7 +7,7 @@
 ALLOWED_PROCESSES="^vim |^top|^htop|^watch |^ping "
 
 # default dir where to save the screen sessions:
-DEFAULT_SAVE_DIR="${HOME}/.screenrc-"
+DEFAULT_SAVE_DIR="${SCREEN_SAVE_DIR:-"${HOME}/.screenrc-"}"
 
 debug() {
 	# remove "#" to enable debug output:
@@ -285,6 +285,7 @@ fi
 if test "x${SAVE_FILE}" = "x-"; then
 	echo "${C}"
 else
+	mkdir -p "$(dirname "${SAVE_FILE}")"
 	echo "${C}" >"${SAVE_FILE}"
 fi
 
