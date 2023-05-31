@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # start saved screen sessions at system start
 # Simon Walz, 2018
 
