@@ -8,7 +8,7 @@
 #	@reboot	/full/path/to/screen-auto-start
 
 # default dir where to save the screen sessions:
-DEFAULT_SAVE_DIR="${HOME}/.screenrc-"
+DEFAULT_SAVE_DIR="${SCREEN_SAVE_DIR:-"${HOME}/.screenrc-"}"
 SAVE_DIR="${DEFAULT_SAVE_DIR}"
 
 if test "x$1" = "x--help" || test "x$1" = "x-h"
