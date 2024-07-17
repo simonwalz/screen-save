@@ -112,10 +112,10 @@ then
 else
 	# search for sessionname, pid or full id
 	# parse screen list:
-	SCREEN_PID=`screen -S "${SCREEN_SEARCH}" -ls | \
+	SCREEN_PID=$(screen -S "${SCREEN_SEARCH}" -ls | \
 		grep -E "\.${SCREEN_SEARCH}\s|^\s+${SCREEN_SEARCH}(\.|\s)" | \
 		grep -oE "^\s+[0-9]+\." | \
-		grep -oE "[0-9]+"`
+		grep -oE "[0-9]+")
 fi
 
 if test "${SCREEN_PID}" = ""
@@ -172,7 +172,7 @@ debug
 mkdir -p "${HOME}/.screen_hardcopy"
 
 # for all windows:
-for WINDOW_PID in `ps -o pid= --ppid "${SCREEN_PID}"`
+for WINDOW_PID in $(ps -o pid= --ppid "${SCREEN_PID}")
 do
 	# get window id:
 	# LIMITATION: Changing the number of a window is not supported.
@@ -213,7 +213,7 @@ do
 	debug "${WINDOW_CWD}"
 
 	PROCESS_CL=""
-	for PROCESS_PID in `ps -o pid= --ppid "${WINDOW_PID}"`
+	for PROCESS_PID in $(ps -o pid= --ppid "${WINDOW_PID}")
 	do
 		debug "PID=${PROCESS_PID}"
 
@@ -221,7 +221,7 @@ do
 		PROCESS_CL="$(read_cmdline "${PROCESS_PID}")"
 
 		# get cwd of process:
-		#PROCESS_CWD="`readlink /proc/${PROCESS_PID}/cwd`"
+		#PROCESS_CWD="$(readlink /proc/${PROCESS_PID}/cwd)"
 
 		debug "\> ${PROCESS_CL}"
 
