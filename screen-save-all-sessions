@@ -9,19 +9,19 @@ set -e
 
 savedir="$1"
 
-if test "x$1" = "x--help" || test "x$1" = "x-h"
+if test "$1" = "--help" || test "$1" = "-h"
 then
 	echo "usage: prog [-d|savedir]" >&2
 	echo "  -d      - use .screen-save/YYYY-MM-DD/ aus save dir" >&2
 	echo "	savedir	- save to directory" >&2
 	exit 2
 fi
-if test "x$savedir" = "x-d"
+if test "$savedir" = "-d"
 then
 	savedir="$HOME/.screen-save/$(date +%Y-%m-%d)/"
 fi
 
-if test "x$savedir" != "x"
+if test "$savedir" != ""
 then
 	savedir="${savedir}/"
 	mkdir -p "${savedir}"

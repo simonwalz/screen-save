@@ -19,7 +19,7 @@ debug() {
 # script:
 C=""
 write() {
-	if test "x$1" = "x-n"; then
+	if test "$1" = "-n"; then
 		shift;
 		C="${C}$@"
 		return
@@ -68,7 +68,7 @@ read_cmdline() {
 	format="%s"
 	( while IFS= read -r -d $'\0' ARG
 	do
-		if test "x$(echo "${ARG}" | tr -d 'A-Za-z0-9.=_-')" = "x"
+		if test "$(echo "${ARG}" | tr -d 'A-Za-z0-9.=_-')" = ""
 		then
 			printf "${format}" "${ARG}"
 		else
@@ -82,12 +82,12 @@ read_cmdline() {
 SCREEN_SEARCH="$1"
 SAVE_FILE="$2"
 
-if test "x${TESTCASES}" = "xscreen-save"
+if test "${TESTCASES}" = "screen-save"
 then
 	return
 fi
 
-if test "x${SCREEN_SEARCH}" = "x" || test "x${SCREEN_SEARCH}" = "x--help";
+if test "${SCREEN_SEARCH}" = "" || test "${SCREEN_SEARCH}" = "--help";
 then
 	echo "usage: prog [-t] screenname [savefile]" >&2
 	echo "	[-t]		- use this screen session (optional)" >&2
@@ -96,9 +96,9 @@ then
 	echo "			  default: ~/.screenrc-SESSIONNAME" >&2
 	exit 2
 fi
-if test "x${SCREEN_SEARCH}" = "x-t";
+if test "${SCREEN_SEARCH}" = "-t";
 then
-	if test "x${STY}" = "x";
+	if test "${STY}" = "";
 	then
 		echo "No screen name given by STY var" >&2
 		echo "" >&2
@@ -118,7 +118,7 @@ else
 		grep -oE "[0-9]+"`
 fi
 
-if test "x${SCREEN_PID}" = "x"
+if test "${SCREEN_PID}" = ""
 then
 	echo "Process not found." >&2
 	exit 1
@@ -132,22 +132,22 @@ SCREEN_ID="${SCREEN_PID}.${SCREEN_NAME}"
 
 # if pts or tty: there is no sessionname:
 echo "${SCREEN_NAME}" | grep -E "^pts" >/dev/null
-if test "x$?" = "x0"; then
+if test "$?" = "0"; then
 	SCREEN_NAME=""
 fi
 echo "${SCREEN_NAME}" | grep -E "^tty" >/dev/null
-if test "x$?" = "x0"; then
+if test "$?" = "0"; then
 	SCREEN_NAME=""
 fi
 
 # set user sessionname:
-if test "x${C_SCREEN_NAME}" != "x"; then
+if test "${C_SCREEN_NAME}" != ""; then
 	SCREEN_NAME="${C_SCREEN_NAME}"
 fi
-if test "x${SCREEN_NAME}" = "x"; then
+if test "${SCREEN_NAME}" = ""; then
 	read -p "The screen session does not have a name. Please set one: " SCREEN_NAME
 fi
-if test "x${SCREEN_NAME}" = "x"; then
+if test "${SCREEN_NAME}" = ""; then
 	SCREEN_NAME="pid-${SCREEN_SEARCH}"
 fi
 
@@ -228,7 +228,7 @@ do
 		# if process is a allow process, do exec command:
 		echo "${PROCESS_CL}" | grep -E "${ALLOWED_PROCESSES}" \
 				>/dev/null 2>&1
-		if test "x$?" = "x0"
+		if test "$?" = "0"
 		then
 			PROCESS_CL="${PROCESS_CL}\\n"
 		fi
@@ -239,10 +239,10 @@ do
 	write "screen -t \"${WINDOW_TITLE}\" ${WINDOW_ID} ${WINDOW_CL}"
 
 	# add window contents and command:
-	if test "x${PROCESS_CL}" != "x" || test "x${WINDOW_CONTENTS}" != "x"
+	if test "${PROCESS_CL}" != "" || test "${WINDOW_CONTENTS}" != ""
 	then
 		EXEC_CL="sleep 0.2;echo '${WINDOW_CONTENTS}'|base64 -d|gzip -cd"
-		if test "x${PROCESS_CL}" != "x"
+		if test "${PROCESS_CL}" != ""
 		then
 			EXEC_CL="${EXEC_CL};echo -n $(escape_shell "${PROCESS_CL}") >&2"
 		fi
@@ -251,7 +251,7 @@ do
 	fi
 	# alternative code
 	# screen -S dokuweb -p 0 -X stuff "ls\n"
-#	if test "x${PROCESS_CL}" != "x"; then
+#	if test "${PROCESS_CL}" != ""; then
 #		write "at \"${WINDOW_ID}#\" stuff \"${PROCESS_CL}\""
 #	fi
 
@@ -276,13 +276,13 @@ screen -S "${SCREEN_ID}" -Q echo ''
 
 
 # save session file:
-if test "x${SAVE_FILE}" = "x"; then
+if test "${SAVE_FILE}" = ""; then
 	SAVE_FILE="${DEFAULT_SAVE_DIR}${SCREEN_NAME}"
 fi
 if test -d "${SAVE_FILE}"; then
 	SAVE_FILE="${SAVE_FILE}/${SCREEN_NAME}"
 fi
-if test "x${SAVE_FILE}" = "x-"; then
+if test "${SAVE_FILE}" = "-"; then
 	echo "${C}"
 else
 	mkdir -p "$(dirname "${SAVE_FILE}")"
