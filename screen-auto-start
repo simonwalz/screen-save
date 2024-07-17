@@ -11,14 +11,14 @@
 DEFAULT_SAVE_DIR="${SCREEN_SAVE_DIR:-"${HOME}/.screenrc-"}"
 SAVE_DIR="${DEFAULT_SAVE_DIR}"
 
-if test "x$1" = "x--help" || test "x$1" = "x-h"
+if test "$1" = "--help" || test "$1" = "-h"
 then
 	echo "usage: prog [savedir]" >&2
 	echo "	savedir	- load configs from directory" >&2
 	exit 2
 fi
 
-if test "x$1" != "x"
+if test "$1" != ""
 then
 	SAVE_DIR="$1"
 fi
