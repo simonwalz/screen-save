@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # save all my screen sessions
 # Simon Walz, 2018
 
@@ -6,6 +6,7 @@ SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shif
 SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
 
 set -e
+shopt -s nullglob
 
 savedir="$1"
 
@@ -16,23 +17,19 @@ then
 	echo "	savedir	- save to directory" >&2
 	exit 2
 fi
-if test "$savedir" = "-d"
-then
-	savedir="$HOME/.screen-save/$(date +%Y-%m-%d)/"
-fi
 
-if test "$savedir" != ""
-then
-	savedir="${savedir}/"
-	mkdir -p "${savedir}"
-fi
+screen_sockets=(/var/run/screen/S-*/*);
 
-SCREEN_PID=$(screen -ls | \
-	grep -oE "^\s+[0-9]+\." | \
-	grep -oE "[0-9]+")
-
-for i in ${SCREEN_PID}
+for screen_info in "${screen_sockets[@]#*S-}";
 do
-	"${SCRIPTDIR}/screen-save" "$i" "$savedir" </dev/null
+	screen_user=$(dirname "${screen_info}")
+	screen_pid=$(basename "${screen_info%.pts*}")
+
+	if test "$1" = "-d"
+	then
+		savedir="~${screen_user}/.screen-save/$(date +%Y-%m-%d)/"
+		su - "${screen_user}" -c "mkdir -p ${savedir}"
+	fi
+	su - "${screen_user}" -c "${SCRIPTDIR}/screen-save ${screen_pid} ${savedir} </dev/null"
 done
 
