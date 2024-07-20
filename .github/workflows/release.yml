@@ -47,3 +47,11 @@ jobs:
           path: |
             ./*.rpm
             !./*-debuginfo-*.rpm
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            ./*.deb
+            ./*.rpm
+            !./*-debuginfo-*.rpm
