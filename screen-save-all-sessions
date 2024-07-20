@@ -2,7 +2,7 @@
 # save all my screen sessions
 # Simon Walz, 2018
 
-SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
+SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' "$0")"
 SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
 
 set -e
