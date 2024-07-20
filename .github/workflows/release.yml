@@ -35,3 +35,15 @@ jobs:
           version: ${{ github.ref }} # refs/tags/v*.*.*
           arch: 'x86_64'
           desc: 'A tool to make screen sessions persistent = survive system reboots.'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifact-deb
+          path: |
+            ./*.deb
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifact-rpm
+          path: |
+            ./*.rpm
+            !./*-debuginfo-*.rpm
