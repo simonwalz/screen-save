@@ -21,15 +21,14 @@ C=""
 write() {
 	if test "$1" = "-n"; then
 		shift;
-		C="${C}$@"
+		C="${C}$*"
 		return
 	fi
-	C="${C}$@
+	C="${C}$*
 "
 }
 
 doublequote() {
-	local output
 	for i in "$@"
 	do
 		i=${i//\\/\\\\}
@@ -70,8 +69,10 @@ read_cmdline() {
 	do
 		if test "$(echo "${ARG}" | tr -d 'A-Za-z0-9.=_-')" = ""
 		then
+			# shellcheck disable=SC2059
 			printf "${format}" "${ARG}"
 		else
+			# shellcheck disable=SC2059
 			printf "${format}" "$(escape_shell "${ARG}")"
 		fi
 		format=" %s"
@@ -106,7 +107,7 @@ then
 		exit 1
 	fi
 	# session name in sty is not updated.
-	SCREEN_PID="$(echo ${STY} | grep -oE "^\s*[0-9]+" | grep -oE "[0-9]+")"
+	SCREEN_PID="$(echo "${STY}" | grep -oE "^\s*[0-9]+" | grep -oE "[0-9]+")"
 	C_SCREEN_NAME="$2"
 	SAVE_FILE="$3"
 else
@@ -125,7 +126,7 @@ then
 fi
 
 # get sessionname from screen:
-SCREEN_NAME="$(screen -S ${SCREEN_PID} -Q echo '${STY}')"
+SCREEN_NAME="$(screen -S "${SCREEN_PID}" -Q echo "\${STY}")"
 
 # screen id is pid + name:
 SCREEN_ID="${SCREEN_PID}.${SCREEN_NAME}"
@@ -145,14 +146,14 @@ if test "${C_SCREEN_NAME}" != ""; then
 	SCREEN_NAME="${C_SCREEN_NAME}"
 fi
 if test "${SCREEN_NAME}" = ""; then
-	read -p "The screen session does not have a name. Please set one: " SCREEN_NAME
+	read -r -p "The screen session does not have a name. Please set one: " SCREEN_NAME
 fi
 if test "${SCREEN_NAME}" = ""; then
 	SCREEN_NAME="pid-${SCREEN_SEARCH}"
 fi
 
 # get screens cwd:
-SCREEN_CWD="$(screen -S "${SCREEN_ID}" -Q echo '${PWD}')"
+SCREEN_CWD="$(screen -S "${SCREEN_ID}" -Q echo "\${PWD}")"
 
 write "# from .screenrc (filtered):"
 write "$(grep -Ei "^(def|source|colon|setenv|unsetenv|shell|shelltitle|term|password|lockscreen|multiuser|acladd|addacl|aclchg|chacl|acldel|aclgrp|aclumask|umask|wall|resize|caption|fit|mousetrack|width|height|utf8|scrollback|bind|unbindall|escape|meta|dump|echo|sleep|log|startup_message|debug|crlf|caption)" "${HOME}/.screenrc" 2>/dev/null)"
@@ -162,8 +163,8 @@ write "# saved session:"
 write "sessionname \"${SCREEN_NAME}\""
 write
 
-debug SCREENNAME=${SCREEN_NAME}
-debug SCREEN_ID=${SCREEN_ID}
+debug "SCREENNAME=${SCREEN_NAME}"
+debug "SCREEN_ID=${SCREEN_ID}"
 debug "path: ${SCREEN_CWD}"
 debug
 
@@ -179,14 +180,14 @@ do
 	# The window number is read from the environment, which can not
 	# be updated by screen.
 	WINDOW_ID="$(xargs --null --max-args=1 echo \
-		</proc/${WINDOW_PID}/environ | grep -w WINDOW | grep -oE "[0-9]+")"
+		<"/proc/${WINDOW_PID}/environ" | grep -w WINDOW | grep -oE "[0-9]+")"
 
 	# read cmdline:
 	WINDOW_CL="$(read_cmdline "${WINDOW_PID}")"
 
 
 	# get cwd of window:
-	WINDOW_CWD="$(readlink /proc/${WINDOW_PID}/cwd)"
+	WINDOW_CWD="$(readlink "/proc/${WINDOW_PID}/cwd")"
 	
 	# get title of window:
 	WINDOW_TITLE="$(screen -S "${SCREEN_ID}" -p "${WINDOW_ID}" -Q title)"
