@@ -9,14 +9,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: create package structure
+      - name: Create package structure
         run: |
           mkdir -p .debpkg/usr/bin .rpmpkg/usr/bin
           cp -p screen-* .debpkg/usr/bin/
           cp -p screen-* .rpmpkg/usr/bin/
-      - uses: jiro4989/build-deb-action@v3
+      - name: Create DEB package
+        uses: jiro4989/build-deb-action@v3
         with:
           package: screen-save
           package_root: .debpkg
@@ -26,7 +28,8 @@ jobs:
           depends: 'screen'
           desc: 'A tool to make screen sessions persistent = survive system reboots.'
           homepage: 'https://github.com/simonwalz/screen-save'
-      - uses: jiro4989/build-rpm-action@v2
+      - name: Create RPM package
+        uses: jiro4989/build-rpm-action@v2
         with:
           summary: 'A tool to make screen sessions persistent = survive system reboots.'
           package: screen-save
@@ -36,23 +39,27 @@ jobs:
           arch: 'x86_64'
           desc: 'A tool to make screen sessions persistent = survive system reboots.'
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload DEB package
+        uses: actions/upload-artifact@v4
         with:
           name: artifact-deb
           path: |
             ./*.deb
-      - uses: actions/upload-artifact@v4
+      - name: Upload RPM package
+        uses: actions/upload-artifact@v4
         with:
           name: artifact-rpm
           path: |
             ./*.rpm
             !./*-debuginfo-*.rpm
-      - name: Release
+      - name: Remove debuginfo file
+        run: |
+          rm *-debuginfo-*.rpm
+      - name: Release package files
         uses: softprops/action-gh-release@v2
         with:
           prerelease: false
           files: |
             ./*.deb
             ./*.rpm
-            !./*-debuginfo-*.rpm
           generate_release_notes: true
