@@ -2,7 +2,7 @@
 
 assert() {
 	a="$1"; b="$2"
-	if test "x$a" = "x$b"
+	if test "$a" = "$b"
 	then
 		echo "okay"
 	else
