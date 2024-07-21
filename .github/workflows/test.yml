@@ -15,5 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run test cases
-        run: bash ./test-cases.sh
+      - name: Run unit tests
+        run: ./test-unit.sh
+
+      - name: Install screen
+        run: sudo apt-get install -y screen
+
+      - name: Run system tests
+        run: ./test-system.sh
