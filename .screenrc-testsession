@@ -1,0 +1,31 @@
+# from .screenrc (filtered):
+startup_message off
+defutf8 on
+defscrollback 5000
+termcapinfo xterm* ti@:te@
+
+# saved session:
+sessionname "testsession"
+
+chdir "/tmp"
+screen -t "bash" 0 '/bin/bash'
+at "0#" exec !.! sh -c "sleep 0.2;echo 'H4sIAAAAAAACAysuNzQwMHTITczMs9IvyS1QUcgpVtDNSVHQ50opKq8o0gUhBSMjhaL8/BIIYWJgaaZgZK6n4JWYp2BoZGVsAFRcjNMckB6wWbpgoGBkgWSWoZGRhYWCkQHQsNIcBQNLK0NTqA4ABUcPDZkAAAA='|base64 -d|gzip -cd"
+
+chdir "/tmp"
+screen -t "bash" 1 '/bin/bash'
+at "1#" exec !.! sh -c "sleep 0.2;echo 'H4sIAAAAAAACA61STYvbMBC951cMZI9pbDcU2tzKEspetrDJpZQeZHkcD2trjCQndQ/97X1W7bDbW2GFDkIz72OetKa7h2pPwXpm5+3mQsW2+EDv83yXFXmWf6Si2O8+7fMd/TItHX72dLdar9aUcbTZAks3RKdGAmHHhimMIXJHV6n4xr6d+77pQNY4GgKjF4BaWpyUbGPcmRO+4toMbaSSG3MR9aT1zPOSOtGhaLUfSeLE8TvbLnpkXJVEUDGBDIVofBR3pl7FRaqBHHUA99UlpsBxKofF6L12HTgwlHth1HieWKtJDQjSPoq6sKFSoDebrAdn0zW6Etczj2jxjMHEYUb2nThEak1vSmklCqM+OQatGaJ2Joo1bTsSw3fZSmhIgVSf+DqFjSsU9YrRYgqt5LM4Nw2ItNJkS2QcAsxs/3kopwgG4XW954ZdkAsTdOIEv03Vqj4vAjMdQhlgvZ6tVByNtAHuiC/sR0QFC7EBaJyfuh/iqxD/Onn3pguEx/unw+GRjofT6eHxy/HtJV59e/r+9PUH/ccqNsXt/NnV+OyrP8kkfLaBAwAA'|base64 -d|gzip -cd;echo -n 'vim '\\''/etc/screenrc'\\''\\n' >&2"
+
+chdir "/tmp"
+screen -t "bash" 2 '/bin/bash'
+at "2#" exec !.! sh -c "sleep 0.2;echo 'H4sIAAAAAAACAysuNzQwMHTITczMs9IvyS1QUUhNzshXUPJIzMnJVwhPzSlR4kKwuQB0lILmLwAAAA=='|base64 -d|gzip -cd"
+
+
+# bug in screen: changing cwd of screen breaks term cap:
+chdir "/home/sw1001"
+chdir
+
+# bug in screen: last write command not executed
+screen '/bin/false'
+
+# vim: ft=screen
+
