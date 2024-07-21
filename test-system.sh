@@ -3,11 +3,12 @@
 echo "System Test: Create and save test session"
 
 # Create predefined session
-screen -d -m -c ./.screenrc-testsession
+TESTFILE="${PWD}/.screenrc-testsession"
+HOME="/tmp" screen -d -m -c "${TESTFILE}"
 sleep 2
 
 # Save session
-./screen-save testsession ./.screenrc-testsession-gen
+HOME="${PWD}" ./screen-save testsession ./.screenrc-testsession-gen
 # Terminate session
 screen -S testsession -X quit
 
