@@ -24,12 +24,23 @@ for screen_info in "${screen_sockets[@]#*S-}";
 do
 	screen_user=$(dirname "${screen_info}")
 	screen_pid=$(basename "${screen_info%.pts*}")
+	command=""
 
 	if test "$1" = "-d"
 	then
 		savedir="~${screen_user}/.screen-save/$(date +%Y-%m-%d)/"
-		su - "${screen_user}" -c "mkdir -p ${savedir}"
+		command="mkdir -p ${savedir}"
+		if [ "$EUID" -ne 0 ]; then
+			eval "${command}"
+		else
+			su - "${screen_user}" -c "${command}"
+		fi
 	fi
-	su - "${screen_user}" -c "${SCRIPTDIR}/screen-save ${screen_pid} ${savedir} </dev/null"
+	command="${SCRIPTDIR}/screen-save ${screen_pid} ${savedir} </dev/null"
+	if [ "$EUID" -ne 0 ]; then
+		eval "${command}"
+	else
+		su - "${screen_user}" -c "${command}"
+	fi
 done
 
