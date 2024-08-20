@@ -1,5 +1,11 @@
 #!/usr/bin/make -f
 #export DH_VERBOSE = 1
 
+override_dh_installsystemd:
+	dh_installsystemd --name=screen-auto-start screen-auto-start.service --no-start
+	dh_installsystemd --name=screen-auto-start screen-auto-start.timer
+	dh_installsystemd --name=screen-save-all screen-save-all.service --no-start
+	dh_installsystemd --name=screen-save-all screen-save-all.timer
+
 %:
 	dh $@

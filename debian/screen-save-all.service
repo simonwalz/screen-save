@@ -1,0 +1,7 @@
+[Unit]
+Description=Save all screen session
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/screen-save-all-sessions -d
+User=root
