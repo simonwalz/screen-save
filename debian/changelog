@@ -1,12 +1,5 @@
-screen-save (0.0.2) bookworm; urgency=medium
+screen-save (1.2.6) UNRELEASED; urgency=medium
 
-  * Package project
+  * Last version provided from github
 
- -- Camille Lafitte <cam.lafit@azerttyu.net>  Mon, 15 Jul 2024 08:06:00 +0200
-
-screen-save (0.0.1) UNRELEASED; urgency=medium
-
-  * A version to provide a past history
-  * Was be never pacakged
-
- -- Simon Walz <contact@simonwalz.de>  Thu, 1 Jun 2023 12:25:00 +0200
+ -- Simon Walz <contact@simonwalz.de>  Sat, 20 Jul 2024 12:25:00 +0200
