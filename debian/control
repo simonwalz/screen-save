@@ -1,7 +1,7 @@
 Source: screen-save
 Section: admin
 Priority: optional
-Maintainer: Camille Lafitte <cam.lafit@azerttyu.net>
+Maintainer: Simon Walz <contact@simonwalz.de>
 Build-Depends: debhelper (>= 8)
 Standards-Version: 3.9.8
 
@@ -9,7 +9,7 @@ Package: screen-save
 Priority: optional
 Section: admin
 Architecture: all
-Depends: screen 
+Depends: screen
 Description: A tool to make screen sessions persistent = survive system reboot.
  .
  This package is an optional module to complete screen feature

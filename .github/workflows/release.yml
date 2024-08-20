@@ -11,23 +11,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Create package structure
-        run: |
-          mkdir -p .debpkg/usr/bin .rpmpkg/usr/bin
-          cp -p screen-* .debpkg/usr/bin/
-          cp -p screen-* .rpmpkg/usr/bin/
       - name: Create DEB package
-        uses: jiro4989/build-deb-action@v3
+        uses: jtdor/build-deb-action@v1
+        env:
+          DEB_BUILD_OPTIONS: noautodbgsym
         with:
-          package: screen-save
-          package_root: .debpkg
-          maintainer: Simon Walz <contact@simonwalz.de>
-          version: v0.0.1
-          arch: 'all'
-          depends: 'screen'
-          desc: 'A tool to make screen sessions persistent = survive system reboots.'
-          homepage: 'https://github.com/simonwalz/screen-save'
+          buildpackage-opts: --build=binary --no-sign
       - name: Upload DEB package
         uses: actions/upload-artifact@v4
         with:
