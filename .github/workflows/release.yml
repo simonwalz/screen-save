@@ -24,7 +24,7 @@ jobs:
           name: debian_package
       - name: Remove debuginfo file
         run: |
-          rm *-debuginfo-*.rpm
+          rm *-debuginfo-*.rpm || true
       - name: Release package files
         uses: softprops/action-gh-release@v2
         with:
