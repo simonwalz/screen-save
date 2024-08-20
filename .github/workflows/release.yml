@@ -28,30 +28,12 @@ jobs:
           depends: 'screen'
           desc: 'A tool to make screen sessions persistent = survive system reboots.'
           homepage: 'https://github.com/simonwalz/screen-save'
-      - name: Create RPM package
-        uses: jiro4989/build-rpm-action@v2
-        with:
-          summary: 'A tool to make screen sessions persistent = survive system reboots.'
-          package: screen-save
-          package_root: .rpmpkg
-          maintainer: Simon Walz <contact@simonwalz.de>
-          version: ${{ github.ref }} # refs/tags/v*.*.*
-          arch: 'x86_64'
-          desc: 'A tool to make screen sessions persistent = survive system reboots.'
-
       - name: Upload DEB package
         uses: actions/upload-artifact@v4
         with:
           name: artifact-deb
           path: |
             ./*.deb
-      - name: Upload RPM package
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifact-rpm
-          path: |
-            ./*.rpm
-            !./*-debuginfo-*.rpm
       - name: Remove debuginfo file
         run: |
           rm *-debuginfo-*.rpm
