@@ -2,7 +2,8 @@
 Description=Save all 5' minutes all screen session
 
 [Timer]
-OnCalendar=*:0/5
+OnCalendar=*:0/15
+OnStartupSec=15min
 
 [Install]
 WantedBy=timers.target
