@@ -4,6 +4,7 @@
 override_dh_installsystemd:
 	dh_installsystemd --name=screen-save-autostart --no-start
 	dh_installsystemd --name=screen-save-all --no-start
+	dh_installsystemd --name=screen-save-all-shutdown
 
 %:
 	dh $@
