@@ -1,5 +1,6 @@
 *.swp
 debian/.debhelper/
+debian/*.debhelper
 debian/debhelper-build-stamp
 debian/files
 debian/*.log
