@@ -1,8 +1,0 @@
-[Unit]
-Description=Auto start all saved session
-
-[Timer]
-OnBootSec=1min
-
-[Install]
-WantedBy=timers.target

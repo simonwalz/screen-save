@@ -2,6 +2,7 @@
 Description=Auto start all saved screen session
 
 [Service]
-Type=oneshot
 ExecStart=/usr/bin/screen-auto-start
-User=root
+
+[Install]
+WantedBy=default.target
