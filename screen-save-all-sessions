@@ -31,16 +31,16 @@ do
 		savedir="~${screen_user}/.screen-save/$(date +%Y-%m-%d)/"
 		command="mkdir -p ${savedir}"
 		if [ "$EUID" -ne 0 ]; then
-			eval "${command}"
+			${command}
 		else
 			su - "${screen_user}" -c "${command}"
 		fi
 	fi
-	command="${SCRIPTDIR}/screen-save ${screen_pid} ${savedir} </dev/null"
+	command="${SCRIPTDIR}/screen-save ${screen_pid} ${savedir}"
 	if [ "$EUID" -ne 0 ]; then
-		eval "${command}"
+		${command} </dev/null
 	else
-		su - "${screen_user}" -c "${command}"
+		su - "${screen_user}" -c "${command} </dev/null"
 	fi
 done
 
