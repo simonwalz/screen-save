@@ -30,5 +30,5 @@ fi
 
 for file in "${SAVE_DIR}"*
 do
-	echo /usr/bin/env screen -d -m -c "$file"
+	/usr/bin/env screen -d -m -c "$file"
 done
