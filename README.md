@@ -81,7 +81,7 @@ screen -c .screenrc_{SESSIONNAME}
 
 ## Automatically start sessions at system start
 
-To start the saved screen sessions at system start, start crontab via:
+To start the saved screen sessions at system start, start an user crontab via:
 
 ```sh
 crontab -e
@@ -94,6 +94,7 @@ and add the script `screen-auto-start`:
 ```
 
 The script `screen-auto-start` is part of this repository.
+Note : You need to enable a crontab to each user. Script works only to a specific user context.
 
 ## Automatically save all my session
 
