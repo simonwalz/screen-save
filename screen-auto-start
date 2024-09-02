@@ -32,5 +32,7 @@ for file in "${SAVE_DIR}"*
 do
 	/usr/bin/env screen -D -m -c "$file" &
 	screen_pid=$!
-	mv "$file" "$DEFAULT_SAVE_DIR$screen_pid"
+	if [[ $file =~ "-pid-" ]]; then
+		mv "$file" "$DEFAULT_SAVE_DIR-pid-$screen_pid"
+	fi
 done
