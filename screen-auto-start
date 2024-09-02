@@ -30,5 +30,7 @@ fi
 
 for file in "${SAVE_DIR}"*
 do
-	/usr/bin/env screen -d -m -c "$file"
+	/usr/bin/env screen -D -m -c "$file" &
+	screen_pid=$!
+	mv "$file" "$DEFAULT_SAVE_DIR$screen_pid"
 done
