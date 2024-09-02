@@ -30,5 +30,10 @@ fi
 
 for file in "${SAVE_DIR}"*
 do
-	/usr/bin/env screen -d -m -c "$file"
+	/usr/bin/env screen -D -m -c "$file" &
+	screen_pid=$!
+	sleep 1
+	if [[ $file =~ "-pid-" ]]; then
+		mv "$file" "${DEFAULT_SAVE_DIR}pid-${screen_pid}"
+	fi
 done
