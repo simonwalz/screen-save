@@ -1,0 +1,14 @@
+[Unit]
+Description=Save all screen session on shutdown event
+DefaultDependencies=no
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/screen-save-all-sessions -d
+User=root
+TimeoutStartSec=0
+
+
+[Install]
+WantedBy=shutdown.target

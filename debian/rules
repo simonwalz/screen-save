@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE = 1
+
+
+override_dh_installsystemduser:
+	dh_installsystemduser --name=screen-save-autostart
+
+override_dh_installsystemd:
+	dh_installsystemd --name=screen-save-all
+	dh_installsystemd --name=screen-save-all-shutdown
+
+%:
+	dh $@

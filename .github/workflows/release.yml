@@ -2,8 +2,8 @@ name: release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branch:
+      - 'issue_10_debian_packaging'
 
 jobs:
   build:
@@ -11,50 +11,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Create package structure
-        run: |
-          mkdir -p .debpkg/usr/bin .rpmpkg/usr/bin
-          cp -p screen-* .debpkg/usr/bin/
-          cp -p screen-* .rpmpkg/usr/bin/
       - name: Create DEB package
-        uses: jiro4989/build-deb-action@v3
+        uses: jtdor/build-deb-action@v1
+        env:
+          DEB_BUILD_OPTIONS: noautodbgsym
         with:
-          package: screen-save
-          package_root: .debpkg
-          maintainer: Simon Walz <contact@simonwalz.de>
-          version: ${{ github.ref }} # refs/tags/v*.*.*
-          arch: 'all'
-          depends: 'screen'
-          desc: 'A tool to make screen sessions persistent = survive system reboots.'
-          homepage: 'https://github.com/simonwalz/screen-save'
-      - name: Create RPM package
-        uses: jiro4989/build-rpm-action@v2
-        with:
-          summary: 'A tool to make screen sessions persistent = survive system reboots.'
-          package: screen-save
-          package_root: .rpmpkg
-          maintainer: Simon Walz <contact@simonwalz.de>
-          version: ${{ github.ref }} # refs/tags/v*.*.*
-          arch: 'x86_64'
-          desc: 'A tool to make screen sessions persistent = survive system reboots.'
-
+          buildpackage-opts: --build=binary --no-sign
       - name: Upload DEB package
         uses: actions/upload-artifact@v4
         with:
-          name: artifact-deb
-          path: |
-            ./*.deb
-      - name: Upload RPM package
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifact-rpm
-          path: |
-            ./*.rpm
-            !./*-debuginfo-*.rpm
+          path: debian/artifacts/
+          name: debian_package
       - name: Remove debuginfo file
         run: |
-          rm *-debuginfo-*.rpm
+          rm *-debuginfo-*.rpm || true
       - name: Release package files
         uses: softprops/action-gh-release@v2
         with:

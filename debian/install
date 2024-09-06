@@ -1,0 +1,3 @@
+./screen-auto-start /usr/bin/
+./screen-save /usr/bin/
+./screen-save-all-sessions /usr/bin/
